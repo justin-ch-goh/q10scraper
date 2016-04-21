@@ -53,7 +53,7 @@ doc.css("div.section_ctlst li").each do |link|
 end
 
 # using Typhoeus to run multiple requests in parallel to de-bottleneck Nokogiri
-hydra = Typhoeus::Hydra.new(max_concurrency: 1)
+hydra = Typhoeus::Hydra.new(max_concurrency: 16)
 requests = itemUrls.map { |path| Typhoeus::Request.new("#{path}") }
 requests.each { |request| hydra.queue(request) }
 hydra.run
