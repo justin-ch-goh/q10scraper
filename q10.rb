@@ -6,10 +6,6 @@ require 'typhoeus'
 
 # Fetch and parse HTML document
 doc = Nokogiri::HTML(open("http://list.qoo10.sg/gmkt.inc/Bestsellers/"))
-# path = doc.css("li#441633906 a")[0]['href']
-# section = doc.css("div.section_ctlst li")[0]
-# puts section
-# path = doc.css("li").key?('goodscode')[0]['href']
 
 paths = []        # URL to product page
 thumbnailImg = [] # jpeg, since webp has a spinner placeholder
@@ -24,14 +20,9 @@ discountDel = []  # strikethrough
 
 reviews = []      # go into the product's URL, extract the first review
 
-itemUrls = []
-reviewsTypheous = []
-
 doc.css("div.section_ctlst li").each do |link|
 
   item_url = link.css("a.thumb")[0]['href']
-
-  itemUrls << item_url
 
   paths << item_url
   thumbnailImg << link.css("a.thumb img")[0]['gd_src'] # link.css("a.thumb img")[0]['src'] didn't work due to spinner
@@ -54,7 +45,7 @@ end
 
 # using Typhoeus to run multiple requests in parallel to de-bottleneck Nokogiri
 hydra = Typhoeus::Hydra.new(max_concurrency: 16)
-requests = itemUrls.map { |path| Typhoeus::Request.new("#{path}") }
+requests = paths.map { |path| Typhoeus::Request.new("#{path}") }
 requests.each { |request| hydra.queue(request) }
 hydra.run
 requests.each { |request| 
