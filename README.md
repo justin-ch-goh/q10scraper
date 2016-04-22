@@ -1,5 +1,5 @@
 # q10scraper
 
-Requires Ruby and nokogiri.
+Requires Ruby, nokogiri and Typhoeus.
 
 > ruby q10.rb
