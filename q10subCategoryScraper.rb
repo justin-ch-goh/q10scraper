@@ -67,7 +67,7 @@ end
 
     paths << item_url
     pathsForLoop << item_url
-    thumbnailImg << link.css("a.thumb img")[0]['gd_src'] # link.css("a.thumb img")[0]['src'] didn't work due to spinner
+    thumbnailImg << link.css("a.thumb img")[0]['gd_src']
     title << link.css("p.subject a")[0]['title']
     price << link.css("div.price strong")[0].text
     sellerShop << link.css("p.name a")[0].text
@@ -91,17 +91,15 @@ end
   requests = pathsForLoop.map { |path| Typhoeus::Request.new("#{path}") }
   requests.each { |request| hydra.queue(request) }
   hydra.run
-  # get first "photo review"
+  # get all "photo reviews"
   requests.each { |request| 
     review = Nokogiri::HTML(request.response.body).css("ul.pht_review dd.detail a").text
-    # puts review
     reviews << review }
 
   csvFileNumber = i / pagesPerCsvFile
 
   # Write to CSV only once per x pages
-  # Need to figure out a way to ensure the CSV written using ||, otherwise it wont work
-  # Also encountered a review bug, pretty sure it has to do with paths in hydra fetching
+  # Need || condition to ensure last csv file is written
   if (i % pagesPerCsvFile == 0) || (i == endPage)
     if (i == endPage)
       csvFileNumber += 1
@@ -120,16 +118,17 @@ end
       csv << reviews
       puts "Success writing to csv..."
     end
-    paths = []        # URL to product page
-    thumbnailImg = [] # jpeg, since webp has a spinner placeholder
-    title = []        # Title blurb
-    price = []        # Price (after reductions)
-    sellerShop = []   # <a href="" title="power-seller"> 
-    shipping = []     # cost / free shipping
-    discountEm = []   # original
-    discountSpan = [] # reduction
-    discountDel = []  # strikethrough
-    reviews = []      # go into the product's URL, extract the first review
+    # reset globals for next csv
+    paths = []      
+    thumbnailImg = [] 
+    title = []     
+    price = []     
+    sellerShop = []  
+    shipping = []    
+    discountEm = [] 
+    discountSpan = []
+    discountDel = []  
+    reviews = []      
   end
 
 end
